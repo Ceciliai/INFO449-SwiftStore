@@ -124,8 +124,6 @@ Pencil: $0.99
 TOTAL: $18.05
 """
 
-
-
         print(discountedOutput)
         XCTAssertEqual(discountedOutput, expectedReceipt)
     }
