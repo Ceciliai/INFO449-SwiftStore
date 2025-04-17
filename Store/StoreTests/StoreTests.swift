@@ -66,4 +66,70 @@ TOTAL: $7.97
 """
         XCTAssertEqual(expectedReceipt, receipt.output())
     }
+    
+    //extra credit test
+    func testTwoForOneDiscount() {
+        register.scan(Item(name: "Beans", priceEach: 199))
+        register.scan(Item(name: "Beans", priceEach: 199))
+        register.scan(Item(name: "Beans", priceEach: 199))
+        register.scan(Item(name: "Beans", priceEach: 199))
+        register.scan(Item(name: "Pencil", priceEach: 99))
+
+        let receipt = register.total()
+
+        let promo = TwoForOnePricingScheme(itemName: "Beans")
+        let discountedOutput = promo.outputReceipt(for: receipt.items())
+
+        let expectedReceipt = """
+Receipt:
+Beans: $1.99
+Beans: $1.99
+Beans: $0.00
+Beans: $1.99
+Pencil: $0.99
+------------------
+TOTAL: $6.96
+"""
+        XCTAssertEqual(discountedOutput, expectedReceipt)
+    }
+    
+    
+    func testGroupedPricingDiscountWithDetails() {
+        register.scan(Item(name: "Ketchup", priceEach: 349))
+        register.scan(Item(name: "Beer", priceEach: 599))
+        register.scan(Item(name: "Beer", priceEach: 599))
+        register.scan(Item(name: "Ketchup", priceEach: 349))
+        register.scan(Item(name: "Pencil", priceEach: 99))
+
+        // get receipt
+        let receipt = register.total()
+
+        // Create the GroupedPricingScheme rule (buying Beer and Ketchup simultaneously triggers a discount)
+        let promo = GroupedPricingScheme(itemNames: ["Ketchup", "Beer"])
+        let discountedOutput = promo.outputReceipt(for: receipt.items())
+
+        // Expected receipt content
+        let expectedReceipt = """
+Receipt:
+Ketchup: $3.49
+→ Discount: -$0.35
+Beer: $5.99
+→ Discount: -$0.60
+Beer: $5.99
+→ Discount: -$0.60
+Ketchup: $3.49
+→ Discount: -$0.35
+Pencil: $0.99
+------------------
+TOTAL: $18.05
+"""
+
+
+
+        print(discountedOutput)
+        XCTAssertEqual(discountedOutput, expectedReceipt)
+    }
+
+
+
 }
