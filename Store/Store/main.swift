@@ -41,20 +41,30 @@ class Receipt {
     func output() -> String {
         var result = "Receipt:\n"
         for item in scannedItems {
-            let dollars = Double(item.price()) / 100.0
-            result += "\(item.name): $\(String(format: "%.2f", dollars))\n"
+            if let weighed = item as? WeighedItem {
+                let totalDollars = Double(weighed.price()) / 100.0
+                let perPound = weighed.pricePerPoundDescription()
+                let weight = weighed.weightDescription()
+                result += "\(weighed.name) @ $\(perPound)/lb x \(weight)lb: $\(String(format: "%.2f", totalDollars))\n"
+            } else {
+                let dollars = Double(item.price()) / 100.0
+                result += "\(item.name): $\(String(format: "%.2f", dollars))\n"
+            }
         }
         result += "------------------\n"
         result += "TOTAL: $\(String(format: "%.2f", Double(subtotal()) / 100.0))"
         return result
     }
+
     func subtotal() -> Int {
         return scannedItems.map { $0.price() }.reduce(0, +)
     }
+
     func total() -> Int {
-            return subtotal()
+        return subtotal()
     }
 }
+
 
 class Register {
     private var currentReceipt = Receipt()
@@ -180,6 +190,32 @@ class GroupedPricingScheme {
         result += "------------------\n"
         result += String(format: "TOTAL: $%.2f", Double(total) / 100.0)
         return result
+    }
+    
+}
+//extra credit3
+class WeighedItem: SKU {
+    let name: String
+    private let pricePerPound: Int  // e.g., 899 means $8.99 per pound
+    private let weight: Double      // in pounds, e.g., 1.25 lbs
+
+    init(name: String, pricePerPound: Int, weight: Double) {
+        self.name = name
+        self.pricePerPound = pricePerPound
+        self.weight = weight
+    }
+
+    func price() -> Int {
+        let total = Double(pricePerPound) * weight
+        return Int(round(total)) // rounded to nearest cent
+    }
+
+    func weightDescription() -> String {
+        return String(format: "%.2f", weight)
+    }
+
+    func pricePerPoundDescription() -> String {
+        return String(format: "%.2f", Double(pricePerPound) / 100.0)
     }
 }
 

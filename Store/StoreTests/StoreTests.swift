@@ -129,7 +129,22 @@ TOTAL: $18.05
         print(discountedOutput)
         XCTAssertEqual(discountedOutput, expectedReceipt)
     }
+    
+    func testWeighedItemReceiptOutput() {
+        //Scan a WeighedItem: banana $0.89/lb, weighing 1.25lb
+        register.scan(WeighedItem(name: "Bananas", pricePerPound: 89, weight: 1.25))
 
+        let receipt = register.total()
+        let expectedReceipt = """
+    Receipt:
+    Bananas @ $0.89/lb x 1.25lb: $1.11
+    ------------------
+    TOTAL: $1.11
+    """
 
+        print(receipt.output())
+
+        XCTAssertEqual(receipt.output(), expectedReceipt)
+    }
 
 }
